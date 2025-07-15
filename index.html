@@ -115,6 +115,52 @@
 
     <script defer data-domain="samt.st" src="https://plausible.io/js/script.outbound-links.js"></script>
     <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+    
+    <!-- Nostr libraries -->
+    <script src="https://unpkg.com/nostr-tools/lib/nostr.bundle.js"></script>
+    
+    <script>
+      // Nostr profile fetching
+      const NPUB = 'npub1yzfm42rzr3dj2h50flpvdl0uzrv22kv2y4ghve804w5xqu6lzqcqkyfxu5';
+      const RELAYS = [
+        'wss://relay.damus.io',
+        'wss://nos.lol',
+        'wss://relay.nostr.band'
+      ];
+
+      async function fetchNostrProfile() {
+        try {
+          const { nip19, SimplePool } = NostrTools;
+          const { data: pubkey } = nip19.decode(NPUB);
+          
+          const pool = new SimplePool();
+          
+          const events = await pool.querySync(RELAYS, {
+            kinds: [0],
+            authors: [pubkey],
+            limit: 1
+          });
+          
+          if (events.length > 0) {
+            const profile = JSON.parse(events[0].content);
+            console.log('Nostr profile:', profile);
+            
+            // Display bio if available
+            const bioElement = document.getElementById('nostr-bio');
+            if (profile.about && bioElement) {
+              bioElement.textContent = profile.about;
+            }
+          }
+          
+          pool.close(RELAYS);
+        } catch (error) {
+          console.error('Failed to fetch Nostr profile:', error);
+        }
+      }
+
+      // Fetch profile when page loads
+      window.addEventListener('load', fetchNostrProfile);
+    </script>
 
   </head>
   <body>
@@ -122,6 +168,7 @@
       <div id="sam"></div>
       <div id="links">
         <h1>Sam Thomson</h1>
+        <div id="nostr-bio"></div>
         <a href="//github.com/samthomson">github</a>
         <!-- <a href="//samthomsontravels.samt.st/">pictures</a> -->
       

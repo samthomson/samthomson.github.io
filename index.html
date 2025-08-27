@@ -84,6 +84,14 @@
       a:active {
         color: black;
       }
+      
+      /* Custom ellipsis for long npub strings */
+      a[href*="npub"] {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
 
       @media all and (max-width: 600px) {
         div#center {
